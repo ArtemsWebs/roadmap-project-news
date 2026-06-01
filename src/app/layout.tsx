@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Orbitron, Share_Tech_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
+import { cn } from "@/lib/utils";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
+
+const shareTechMono = Share_Tech_Mono({subsets:['latin'],variable:'--font-share-tech-mono', weight:['400'], style:['normal']});
+const orbitron = Orbitron({subsets:['latin'],variable:'--font-orbitron', weight:['400'], style:['normal']});
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,12 +21,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
-    </html>
-  );
+    return (
+      <html lang="ru" className={cn(shareTechMono.variable, orbitron.variable)}>
+        <body>
+          <Providers>{children}</Providers>
+        </body>
+      </html>
+    );
 }
