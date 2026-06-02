@@ -1,9 +1,9 @@
 'use client';
-import fetchNews from "./news/api";
-import { useQuery } from "react-query";
-import TopMenu from "./component/TopMenu";
+import fetchNews from './news/api';
+import { useQuery } from 'react-query';
 
 import styles from './cyberpunk-style.module.css';
+import Header from './component/Header';
 
 export default function Home() {
   const { data, isLoading, error } = useQuery({
@@ -11,11 +11,10 @@ export default function Home() {
     queryFn: fetchNews,
   });
 
-
   return (
     <div className={styles['cp-root']}>
       <div className={styles['cp-scanlines']}></div>
-      <TopMenu />
+      <Header data={data} isLoading={isLoading} error={error} />
     </div>
   );
 }
