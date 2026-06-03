@@ -1,5 +1,6 @@
 import CyberButton from '@/components/ui/CyberButton';
 import { LightStrikeIcon } from '@/shared/icons/LightStrike';
+
 const LogoContent = () => {
   return (
     <div className="flex items-center w-full px-6 py-2 justify-between">

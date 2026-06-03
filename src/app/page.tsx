@@ -15,6 +15,7 @@ export default function Home() {
     <div className={styles['cp-root']}>
       <div className={styles['cp-scanlines']}></div>
       <Header data={data} isLoading={isLoading} error={error} />
+      <MainBlock data={data} isLoading={isLoading} error={error} />
     </div>
   );
 }
