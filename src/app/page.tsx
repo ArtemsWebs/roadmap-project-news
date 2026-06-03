@@ -4,6 +4,7 @@ import { useQuery } from 'react-query';
 
 import styles from './cyberpunk-style.module.css';
 import Header from './component/Header';
+import MainBlock from './component/MainBlock';
 
 export default function Home() {
   const { data, isLoading, error } = useQuery({

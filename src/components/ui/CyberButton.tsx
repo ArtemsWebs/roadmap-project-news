@@ -10,7 +10,7 @@ const CyberButton = ({
   return (
     <button
       onClick={onClick}
-      className="group relative px-8 py-3 font-orbitron font-bold text-[#00F0FF] tracking-widest uppercase text-sm cursor-pointer"
+      className="group relative px-6 py-3 font-orbitron font-bold text-[#00F0FF] tracking-widest uppercase text-sm cursor-pointer"
     >
       {/* gradient background: dark teal left → dark purple right */}
       <span className="absolute inset-0 bg-gradient-to-r from-[#0a2a2a] to-[#1a0a2e] transition-all duration-300 group-hover:from-[#00F0FF]/20 group-hover:to-[#7C3AED]/30" />
