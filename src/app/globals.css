@@ -1,13 +1,14 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-yellow-300: #F7FF3C;
+  --color-yellow-300: #f7ff3c;
+  --color-cyberPink-500: #ff2bd6;
   --color-lime-green: rgba(247, 255, 60, 0.1);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);

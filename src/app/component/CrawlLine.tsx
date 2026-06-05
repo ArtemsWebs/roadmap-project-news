@@ -31,7 +31,7 @@ const CrawlLine = ({ news }: { news: NewsApiSuccessResponse }) => {
     return () => cancelAnimationFrame(raf);
   }, [news]);
 
-  const articles = news?.articles?.slice(0, 10) ?? [];
+  const articles = news?.articles?.results?.slice(0, 10) ?? [];
 
   return (
     <div className="relative h-[40px] overflow-hidden bg-lime-green border-y border-[#F7FF3C]/30 flex items-center">

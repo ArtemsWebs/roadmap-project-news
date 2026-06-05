@@ -37,8 +37,8 @@ export const useNewsStore = create<NewsStore>((set) => ({
   setFromResponse: (response) => {
     if (isNewsApiSuccess(response)) {
       set({
-        articles: response.articles,
-        totalResults: response.totalResults,
+        articles: response.articles.results,
+        totalResults: response.articles.totalResults,
         status: "success",
         error: null,
       });
@@ -46,7 +46,7 @@ export const useNewsStore = create<NewsStore>((set) => ({
     }
     set({
       status: "error",
-      error: response.message,
+      error: response.error,
     });
   },
 
