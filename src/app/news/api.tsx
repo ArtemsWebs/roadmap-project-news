@@ -2,7 +2,7 @@ import type { NewsApiResponse } from './types';
 
 const ENDPOINT = 'https://eventregistry.org/api/v1/article/getArticles';
 
-const fetchNews = async (): Promise<NewsApiResponse> => {
+const fetchNews = async (page = 1): Promise<NewsApiResponse> => {
   const params = new URLSearchParams({
     apiKey: process.env.NEXT_PUBLIC_API_KEY ?? '',
     resultType: 'articles',
@@ -10,7 +10,7 @@ const fetchNews = async (): Promise<NewsApiResponse> => {
     articlesSortBy: 'date',
     articlesSortByAsc: 'false',
     articlesCount: '30',
-    articlesPage: '1',
+    articlesPage: String(page),
     dataType: 'news',
     includeArticleImage: 'true',
   });

@@ -7,9 +7,11 @@ interface MainBlockProps {
   data: NewsApiSuccessResponse;
   isLoading: boolean;
   error: Error | null;
+  page: number;
+  onPageChange: (page: number) => void;
 }
 
-const MainBlock = ({ data }: MainBlockProps) => {
+const MainBlock = ({ data, page, onPageChange }: MainBlockProps) => {
   return (
     <div className="w-[70%] mx-auto">
       <div
@@ -25,12 +27,16 @@ const MainBlock = ({ data }: MainBlockProps) => {
         />
         <SearchBlock />
         <FastFilterBlock
-          sortBy="relevance"
+          sortBy="publishedAt"
           totalResults={data?.articles?.totalResults}
           status={data?.articles ? 'ok' : 'error'}
         />
       </div>
-      <NewsBlock articles={data?.articles?.results} />
+      <NewsBlock
+        articles={data?.articles}
+        page={page}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 };

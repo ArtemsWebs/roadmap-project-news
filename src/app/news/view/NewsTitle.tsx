@@ -1,9 +1,15 @@
 import { DotDelimetr } from '@/components/ui/DotDelimetr';
 
-const NewsTitle = () => {
-  const page = 1;
-  const totalCount = 100;
-  const list = '9/100';
+interface NewsTitleProps {
+  /** Текущая страница (с 1) */
+  page?: number;
+  /** Сколько статей показано сейчас */
+  shown?: number;
+  /** Всего найдено статей */
+  total?: number;
+}
+
+const NewsTitle = ({ page = 1, shown = 0, total = 0 }: NewsTitleProps) => {
   return (
     <div className="flex gap-4 justify-start items-center">
       <div className="flex items-center gap-4">
@@ -21,11 +27,11 @@ const NewsTitle = () => {
       />
       <div className="flex items-center gap-1">
         <p className="font-tech text-slate-400 w-max tracking-[0.5px]">
-          {'Page ' + page}
+          {'page ' + page}
         </p>
         <DotDelimetr className="mx-2" />
         <p className="font-tech text-slate-400 w-max tracking-[0.5px]">
-          {list}
+          {shown}/{total}
         </p>
       </div>
     </div>
