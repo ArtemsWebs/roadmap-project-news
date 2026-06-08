@@ -1,10 +1,210 @@
 .newsCard {
-  height: 66%;
+  height: auto;
+}
+
+@media (min-width: 1024px) {
+  .newsCard {
+    height: 66%;
+  }
+}
+
+/* ============================================================
+   CYBERPUNK HOVER EFFECT
+   ============================================================ */
+.card {
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+  will-change: transform;
+}
+
+/* Сканирующий луч, пробегающий по карточке */
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 45%;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 240, 255, 0.08) 55%,
+    rgba(0, 240, 255, 0.22) 85%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
+}
+
+/* Тонкая «глитч-сетка» поверх карточки */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 240, 255, 0.05) 0px,
+    rgba(0, 240, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+}
+
+.card:hover {
+  cursor: pointer;
+  transform: translateY(-6px);
+  border-color: rgba(0, 240, 255, 0.9);
+  z-index: 5;
+  box-shadow:
+    0 0 0 1px rgba(0, 240, 255, 0.55),
+    0 0 18px rgba(0, 240, 255, 0.45),
+    0 0 46px rgba(124, 58, 237, 0.35),
+    inset 0 0 22px rgba(0, 240, 255, 0.1);
+}
+
+.card:hover::before {
+  animation: cp-scan-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+@keyframes cp-scan-sweep {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    top: 55%;
+    opacity: 0;
+  }
+}
+
+/* --- Картинка: glitch + zoom + усиление цвета --- */
+.cardImage {
+  transition:
+    transform 0.4s ease,
+    filter 0.4s ease;
+}
+
+.card:hover .cardImage {
+  transform: scale(1.05);
+  filter: saturate(1.45) contrast(1.08);
+  animation: cp-img-glitch 0.5s steps(2, end) 1;
+}
+
+@keyframes cp-img-glitch {
+  0% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0) scale(1.05);
+  }
+  20% {
+    clip-path: inset(18% 0 42% 0);
+    transform: translateX(-5px) scale(1.05);
+  }
+  40% {
+    clip-path: inset(58% 0 12% 0);
+    transform: translateX(5px) scale(1.05);
+  }
+  60% {
+    clip-path: inset(8% 0 68% 0);
+    transform: translateX(-4px) scale(1.05);
+  }
+  80% {
+    clip-path: inset(44% 0 34% 0);
+    transform: translateX(4px) scale(1.05);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0) scale(1.05);
+  }
+}
+
+/* --- Заголовок: хроматическая аберрация (RGB-сдвиг) --- */
+.glitchTitle {
+  transition: text-shadow 0.2s ease;
+}
+
+.card:hover .glitchTitle {
+  text-shadow:
+    0 0 10px rgba(0, 240, 255, 0.55),
+    0 0 2px rgba(255, 43, 214, 0.5);
+  animation: cp-text-glitch 0.5s steps(2, end) 1;
+}
+
+@keyframes cp-text-glitch {
+  0% {
+    text-shadow: none;
+    transform: translateX(0);
+  }
+  25% {
+    text-shadow:
+      -2px 0 #00f0ff,
+      2px 0 #ff2bd6;
+    transform: translateX(1px);
+  }
+  50% {
+    text-shadow:
+      2px 0 #00f0ff,
+      -2px 0 #ff2bd6;
+    transform: translateX(-1px);
+  }
+  75% {
+    text-shadow:
+      -1px 0 #00f0ff,
+      1px 0 #ff2bd6;
+    transform: translateX(1px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* --- Уголки-скобки: вспышка свечения --- */
+.corner {
+  transition: filter 0.3s ease;
+}
+
+.card:hover .corner {
+  filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.9));
+}
+
+/* Уважаем системную настройку «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .cardImage,
+  .card:hover .cardImage,
+  .glitchTitle,
+  .card:hover .glitchTitle,
+  .card:hover::before,
+  .card:hover::after {
+    animation: none !important;
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+    transform: none;
+  }
 }
 
 .text-ellipsis-break-news {
+  min-height: 100px;
   display: -webkit-box;
-  max-width: 400px;
   -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -12,17 +212,17 @@
 }
 
 .text-ellipsis-base {
+  height: 100px;
   display: -webkit-box;
-  max-width: 400px;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .text-ellipsis-mobile {
+  height: 100px;
   display: -webkit-box;
-  max-width: 400px;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;

@@ -8,15 +8,17 @@ const SEPARATOR = '//';
 const CrawlLine = ({ news }: { news: NewsApiSuccessResponse }) => {
   const trackRef = useRef<HTMLDivElement>(null);
 
+  const articles = news?.articles?.results?.slice(0, 10) ?? [];
+
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
 
-    // Дублируем контент для бесшовного зацикливания
-    const original = track.innerHTML;
-    track.innerHTML = original + original;
-
+    // Контент отрисован дважды через React (см. JSX ниже) для бесшовного
+    // зацикливания, поэтому половина ширины — это длина одного прохода.
     const totalWidth = track.scrollWidth / 2;
+    if (totalWidth <= 0) return;
+
     let pos = 0;
     let raf: number;
 
@@ -29,9 +31,16 @@ const CrawlLine = ({ news }: { news: NewsApiSuccessResponse }) => {
 
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [news]);
+  }, [articles.length, news]);
 
-  const articles = news?.articles?.results?.slice(0, 10) ?? [];
+  const renderItem = (article: (typeof articles)[number], copy: number) => (
+    <span key={`${copy}-${article.url}`} className="flex items-center gap-8">
+      <span className="text-sm text-yellow-300 font-tech px-4">
+        {article.title}
+      </span>
+      <span className="text-[#F7FF3C]/40 font-tech text-xs">{SEPARATOR}</span>
+    </span>
+  );
 
   return (
     <div className="relative h-[40px] overflow-hidden bg-lime-green border-y border-[#F7FF3C]/30 flex items-center">
@@ -43,16 +52,8 @@ const CrawlLine = ({ news }: { news: NewsApiSuccessResponse }) => {
         ref={trackRef}
         className="flex items-center gap-0 whitespace-nowrap will-change-transform"
       >
-        {articles.map((article) => (
-          <span key={article.url} className="flex items-center gap-8">
-            <span className="text-sm text-yellow-300 font-tech px-4">
-              {article.title}
-            </span>
-            <span className="text-[#F7FF3C]/40 font-tech text-xs">
-              {SEPARATOR}
-            </span>
-          </span>
-        ))}
+        {articles.map((article) => renderItem(article, 0))}
+        {articles.map((article) => renderItem(article, 1))}
       </div>
     </div>
   );

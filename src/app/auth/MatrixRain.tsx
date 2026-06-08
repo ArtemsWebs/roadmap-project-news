@@ -12,7 +12,9 @@ export default function MatrixRain() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const glyphs = 'アァカサタナハマヤラワ0123456789ABCDEF<>/\\|=+*#$%'.split('');
+    const glyphs = 'アァカサタナハマヤラワ0123456789ABCDEF<>/\\|=+*#$%'.split(
+      '',
+    );
     const fontSize = 14;
     let cols = 0;
     let drops: number[] = [];
@@ -41,7 +43,8 @@ export default function MatrixRain() {
         const text = glyphs[Math.floor(Math.random() * glyphs.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
-        ctx.fillStyle = Math.random() > 0.985 ? '#FF2BD6' : 'rgba(34, 211, 238, 0.55)';
+        ctx.fillStyle =
+          Math.random() > 0.985 ? '#FF2BD6' : 'rgba(34, 211, 238, 0.55)';
         ctx.fillText(text, x, y);
         if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;

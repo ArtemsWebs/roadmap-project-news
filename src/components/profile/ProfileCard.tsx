@@ -47,8 +47,7 @@ export const ProfileCard = ({
     router.push('/');
   };
 
-  const width =
-    variant === 'sidebar' ? 'w-full' : 'w-[300px] max-w-[70vw]';
+  const width = variant === 'sidebar' ? 'w-full' : 'w-[300px] max-w-[70vw]';
 
   if (isLoading) {
     return (
@@ -79,7 +78,9 @@ export const ProfileCard = ({
             <UserIcon className="w-4 h-4 text-cyan-300/50" />
           </div>
           <div className="min-w-0">
-            <p className="font-orbitron text-xs text-cyan-300 truncate">GUEST</p>
+            <p className="font-orbitron text-xs text-cyan-300 truncate">
+              GUEST
+            </p>
             <p className="font-tech text-[10px] text-cyan-300/40 truncate">
               not authenticated
             </p>
@@ -104,7 +105,7 @@ export const ProfileCard = ({
         width,
       )}
     >
-      <div className="absolute inset-[3px] bg-[#05060f]" />
+      <div className="absolute inset-[3px] bg-[#05060f] rounded-sm" />
       {/* лёгкие сканлайны внутри */}
       <div
         className="absolute inset-[3px] opacity-[0.06] pointer-events-none"

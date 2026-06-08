@@ -11,3 +11,4 @@ export function cn(...inputs: ClassValue[]) {
 export function formatDate(date: string): string {
   return format(parseISO(date), "d MMMM yyyy 'г.' // HH:mm", { locale: ru });
 }
+

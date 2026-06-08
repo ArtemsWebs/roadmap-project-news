@@ -17,6 +17,7 @@ export default function CyberFrame({ className }: { className?: string }) {
         stroke="currentColor"
         strokeWidth={2}
         strokeLinejoin="round"
+        strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
       >
         {/* основной контур с фасками */}
@@ -25,29 +26,29 @@ export default function CyberFrame({ className }: { className?: string }) {
         <path d="M24 13 H236" />
       </g>
 
-      {/* левые «брекеты» у углов */}
-      <g stroke="currentColor" strokeWidth={5} vectorEffect="non-scaling-stroke">
-        <path d="M4 30 V50" />
-        <path d="M4 78 V98" />
+      {/* левые грипы: толстая скруглённая палка + тонкий акцент, с инсетом от края */}
+      <g
+        stroke="currentColor"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      >
+        <path d="M8 30 V52" strokeWidth={5} />
+        <path d="M13 35 V47" strokeWidth={2} />
+        <path d="M8 76 V98" strokeWidth={5} />
+        <path d="M13 81 V93" strokeWidth={2} />
       </g>
 
       {/* диагональные полосы в правом-верхнем углу */}
-      <g stroke="currentColor" strokeWidth={5} vectorEffect="non-scaling-stroke">
-        <path d="M512 5 L486 41" />
-        <path d="M532 5 L506 41" />
-        <path d="M552 5 L526 41" />
-        <path d="M572 5 L546 41" />
-        <path d="M590 9 L566 41" />
-      </g>
 
-      {/* шевроны снизу по центру */}
-      <g stroke="currentColor" strokeWidth={2} vectorEffect="non-scaling-stroke">
-        <path d="M336 108 L326 115 L336 122" />
-        <path d="M356 108 L346 115 L356 122" />
-        <path d="M376 108 L366 115 L376 122" />
-        <path d="M396 108 L386 115 L396 122" />
-        <path d="M416 108 L406 115 L416 122" />
-        <path d="M436 108 L426 115 L436 122" />
+      <g
+        stroke="currentColor"
+        stroke-linecap=""
+        vector-effect="non-scaling-stroke"
+      >
+        <path d="M596 30 V52" stroke-width="5"></path>
+        <path d="M591 35 V47" stroke-width="2"></path>
+        <path d="M596 76 V98" stroke-width="5"></path>
+        <path d="M591 81 V93" stroke-width="2"></path>
       </g>
     </svg>
   );

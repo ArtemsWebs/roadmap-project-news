@@ -250,7 +250,6 @@ export default function AuthPage() {
         <span className={cn(ui.bracket, ui.btr)} />
         <span className={cn(ui.bracket, ui.bbl)} />
         <span className={cn(ui.bracket, ui.bbr)} />
-        <span className={ui.scanbeam} />
 
         {/* ===== ЛЕВАЯ ПАНЕЛЬ — INTEL / HUD ===== */}
         <div className={cn(ui.panel, 'flex flex-col gap-5')}>

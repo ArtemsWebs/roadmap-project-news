@@ -38,13 +38,11 @@ export const NewsBlock = ({ articles, page, onPageChange }: NewsBlockProps) => {
 
   const { results, totalResults, pages } = articles;
 
-  console.log(results);
-
   return (
     <div className="flex flex-col gap-4">
       <NewsTitle page={page} shown={results.length} total={totalResults} />
       <NewsContent articles={results} />
-      <div className="flex items-center justify-center gap-4 mt-8">
+      <div className="flex items-center justify-center gap-4 my-8">
         <PagerButton
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}

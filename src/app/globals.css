@@ -138,3 +138,197 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Киберпанк-слайдер (PAGE_SIZE) */
+.cp-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.cp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: #00f0ff;
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 8px #00f0ff, 0 0 14px rgba(255, 43, 214, 0.6);
+  transform: rotate(45deg);
+}
+.cp-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 0;
+  background: #00f0ff;
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 8px #00f0ff, 0 0 14px rgba(255, 43, 214, 0.6);
+}
+
+/* Индетерминированная полоса лоадера */
+@keyframes cp-loader-slide {
+  0% {
+    left: -35%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+.cp-loader-bar {
+  animation: cp-loader-slide 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Анимированное многоточие лоадера */
+@keyframes cp-dots {
+  0% {
+    content: '';
+  }
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75% {
+    content: '...';
+  }
+  100% {
+    content: '';
+  }
+}
+.cp-dots::after {
+  content: '';
+  animation: cp-dots 1.2s steps(1, end) infinite;
+}
+
+/* Глитч-текст лоадера */
+@keyframes cp-glitch {
+  0%,
+  92%,
+  100% {
+    text-shadow: 0 0 6px rgba(34, 211, 238, 0.5);
+    transform: translateX(0);
+  }
+  94% {
+    text-shadow: -2px 0 #00f0ff, 2px 0 #ff2bd6;
+    transform: translateX(1px);
+  }
+  96% {
+    text-shadow: 2px 0 #00f0ff, -2px 0 #ff2bd6;
+    transform: translateX(-1px);
+  }
+}
+.cp-glitch-text {
+  animation: cp-glitch 2.4s infinite;
+}
+
+/* Скелетон-шиммер */
+@keyframes cp-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.cp-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(34, 211, 238, 0.05) 0%,
+    rgba(34, 211, 238, 0.18) 50%,
+    rgba(34, 211, 238, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: cp-shimmer 1.4s linear infinite;
+}
+
+/* Неоновое свечение логотипа Arasaka с плавной пульсацией («дыхание») */
+@keyframes cp-bulb {
+  0%,
+  100% {
+    color: #e01230;
+    filter: drop-shadow(0 0 4px rgba(255, 43, 69, 0.6))
+      drop-shadow(0 0 10px rgba(255, 43, 69, 0.35));
+  }
+  50% {
+    color: #ff5063;
+    filter: drop-shadow(0 0 10px rgba(255, 80, 99, 0.95))
+      drop-shadow(0 0 24px rgba(255, 43, 69, 0.7))
+      drop-shadow(0 0 40px rgba(255, 43, 69, 0.45));
+  }
+}
+.cp-bulb {
+  color: #ff2b45;
+  animation: cp-bulb 2.4s ease-in-out infinite;
+  will-change: filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-loader-bar,
+  .cp-glitch-text,
+  .cp-dots::after,
+  .cp-skeleton,
+  .cp-bulb {
+    animation: none !important;
+  }
+  .cp-bulb {
+    color: #ff2b45;
+    filter: drop-shadow(0 0 8px rgba(255, 43, 69, 0.85))
+      drop-shadow(0 0 18px rgba(255, 43, 69, 0.55));
+  }
+}
+
+/* ============================================================
+   КИБЕРПАНК-СКРОЛЛБАР
+   ============================================================ */
+/* Firefox */
+html,
+.cp-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #00f0ff rgba(2, 6, 23, 0.6);
+}
+
+/* WebKit (Chrome / Edge / Safari) */
+::-webkit-scrollbar,
+.cp-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+.cp-scroll::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.6);
+  border-left: 1px solid rgba(34, 211, 238, 0.12);
+}
+
+::-webkit-scrollbar-thumb,
+.cp-scroll::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 240, 255, 0.85) 0%,
+    rgba(255, 43, 214, 0.85) 100%
+  );
+  border: 1px solid rgba(0, 240, 255, 0.5);
+  box-shadow: inset 0 0 6px rgba(0, 240, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover,
+.cp-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 240, 255, 1) 0%,
+    rgba(255, 43, 214, 1) 100%
+  );
+  box-shadow:
+    0 0 8px rgba(0, 240, 255, 0.6),
+    inset 0 0 6px rgba(255, 43, 214, 0.5);
+}
+
+::-webkit-scrollbar-corner,
+.cp-scroll::-webkit-scrollbar-corner {
+  background: rgba(2, 6, 23, 0.6);
+}

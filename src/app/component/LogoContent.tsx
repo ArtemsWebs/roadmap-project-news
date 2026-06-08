@@ -1,14 +1,13 @@
-import CyberButton from '@/components/ui/CyberButton';
 import { LightStrikeIcon } from '@/shared/icons/LightStrike';
 
 const LogoContent = () => {
   return (
-    <div className="flex items-center w-full px-6 py-2 justify-between">
-      <div className="flex items-center">
+    <div className="flex items-center w-full px-3 md:px-6 py-2 justify-between gap-2 flex-wrap">
+      <div className="flex items-center min-w-0 [&>svg]:w-14 [&>svg]:h-14 md:[&>svg]:w-[84px] md:[&>svg]:h-[84px] [&>svg]:shrink-0">
         <LightStrikeIcon width={84} height={84} />
-        <div className="flex flex-col items-center justify-center items-start">
+        <div className="flex flex-col items-start justify-center min-w-0">
           <h1
-            className="text-[36px]  font-orbitron font-black text-[#00F0FF]"
+            className="text-[22px] sm:text-[28px] md:text-[36px] font-orbitron font-black text-[#00F0FF]"
             style={{
               letterSpacing: '1.5px',
               textShadow: [
@@ -19,14 +18,11 @@ const LogoContent = () => {
           >
             NEON://NEWS
           </h1>
-          <p className="text-sm text-gray-500 font-tech">
+          <p className="text-xs md:text-sm text-gray-500 font-tech truncate">
             v7.3.1 — decentralized news protocol
           </p>
         </div>
       </div>
-      <CyberButton>
-        <span className="text-sm font-tech">Subscribe</span>
-      </CyberButton>
     </div>
   );
 };

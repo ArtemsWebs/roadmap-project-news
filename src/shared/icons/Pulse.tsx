@@ -1,10 +1,6 @@
-export const PulseIcon = ({
-  width = 18,
-  height = 18,
-}: {
-  width?: number;
-  height?: number;
-}) => {
+import { IconProps } from './type';
+
+export const PulseIcon = ({ width = 18, height = 18 }: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

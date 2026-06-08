@@ -1,10 +1,6 @@
-export const LightStrikeIcon = ({
-  width = 84,
-  height = 84,
-}: {
-  width?: number;
-  height?: number;
-}) => {
+import { IconProps } from './type';
+
+export const LightStrikeIcon = ({ width = 84, height = 84 }: IconProps) => {
   return (
     <svg
       width={width}

@@ -2,12 +2,15 @@ import { Article } from '../types';
 import {
   CalendarClockIcon,
   UserIcon,
-  ExternalLinkIcon,
+  ArrowRightIcon,
   ImageOffIcon,
 } from 'lucide-react';
 import { formatDate, cn } from '@/lib/utils';
 import styles from './News.module.css';
-import { GradientDivider } from '@/components/GradientDivider';
+import { GradientDivider } from '@/components/ui/GradientDivider';
+import Image from 'next/image';
+import Link from 'next/link';
+import { GrayDivider } from '@/components/ui/GrayDivider';
 
 /** `"rmol.co"` → `"rmol.co"`; используется в `ID://...` */
 const sourceSlug = (article: Article) =>
@@ -30,9 +33,11 @@ export const NewsCard = ({
   className?: string;
 }) => {
   return (
-    <div
+    <Link
+      href={`/article/${encodeURIComponent(article.uri)}`}
       className={cn(
-        'flex flex-col relative h-full border border-cyan-300/40',
+        'group flex flex-col relative h-full border border-cyan-300/40 min-w-[350px]',
+        styles.card,
         className,
       )}
       style={{
@@ -40,15 +45,24 @@ export const NewsCard = ({
           'linear-gradient(180deg, rgba(20, 16, 50, 0.85) 0%, rgba(8, 6, 22, 0.85) 100%)',
       }}
     >
+      <Image
+        src={'/roadmap-project-news/bracket.svg'}
+        alt="News Card Background"
+        width={14}
+        height={14}
+        className={cn('absolute top-1 left-1 z-10', styles.corner)}
+      />
+
       <div className="flex flex-col h-full">
         {/* Изображение / NO_SIGNAL */}
-        <div className="relative w-full">
+        <div className="relative w-full overflow-hidden">
           {article.image ? (
             <img
               src={article.image}
               alt={article.title}
               className={cn(
                 'w-full object-cover',
+                styles.cardImage,
                 featured ? 'h-[320px]' : 'h-[170px]',
               )}
             />
@@ -81,64 +95,80 @@ export const NewsCard = ({
 
         {/* Контент */}
         <div
-          className={cn('flex flex-col gap-2 p-5 relative', styles.newsCard)}
+          className={cn(
+            'flex flex-col justify-between gap-2 p-5 relative',
+            styles.newsCard,
+          )}
         >
-          <div className="flex flex-row items-center gap-2 flex-wrap">
-            <CalendarClockIcon className="w-4 h-4 text-cyan-300" />
-            <p className="font-tech text-sm text-gray-500">
-              {formatDate(article.dateTime)}
-            </p>
-            <UserIcon className="w-4 h-4 text-cyberPink-500" />
-            <p className="font-tech text-sm text-gray-500">
-              {authorName(article)}
-            </p>
-          </div>
+          <div className="h-1/2">
+            <div className="flex flex-row items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <CalendarClockIcon className="w-4 h-4 text-cyan-300" />
+                <p className="font-tech text-sm text-gray-500">
+                  {formatDate(article.dateTime)}
+                </p>
+              </div>
+              <GrayDivider className="mx-2 h-[20px]" />
+              <div className="flex items-center gap-2">
+                <UserIcon className="w-4 h-4 text-cyberPink-500" />
+                <p className="font-tech text-sm text-gray-500">
+                  {authorName(article)}
+                </p>
+              </div>
+            </div>
 
-          <p
-            className={cn(
-              'font-bold font-orbitron text-cyan-50',
-              featured ? 'text-2xl leading-snug' : 'text-sm',
-            )}
-          >
-            {article.title}
-          </p>
-
-          {article.body ? (
             <p
               className={cn(
-                featured
-                  ? styles.textEllipsisBreakNews
-                  : styles.textEllipsisBase,
-                'text-gray-500 text-base wq max-h-[50%] overflow-hidden',
+                'font-bold font-orbitron text-cyan-50 py-2',
+                styles.glitchTitle,
+                featured ? 'text-2xl leading-snug' : 'text-sm',
               )}
             >
-              {article.body}
+              {article.title}
             </p>
-          ) : (
-            <p className="font-tech text-gray-600 italic text-sm">
-              {'// description.stream = null'}
-            </p>
-          )}
+
+            {article.body ? (
+              <p
+                className={cn(
+                  featured
+                    ? styles['text-ellipsis-break-news']
+                    : styles['text-ellipsis-base'],
+                  'text-gray-500 text-base h-full overflow-hidden',
+                )}
+              >
+                {article.body}
+              </p>
+            ) : (
+              <p className="font-tech text-gray-600 italic text-sm">
+                {'// description.stream = null'}
+              </p>
+            )}
+          </div>
           <div>
             <GradientDivider className="mx-auto" />
-            {/* Футер: ID источника + READ_MORE */}
-            <div className="flex items-center justify-between mt-auto pt-4">
+            {/* Футер: ID источника + READ_MORE (вся карточка — ссылка) */}
+            <div className="flex items-center relative justify-between mt-auto pt-4">
               <span className="font-tech text-xs text-slate-500 tracking-[0.5px]">
                 ID://{sourceSlug(article)}
               </span>
-              <a
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 font-tech text-xs text-cyan-300 hover:text-cyan-100 tracking-[0.5px] transition-colors"
-              >
+              <span className="flex items-center gap-1 font-tech text-xs text-cyan-300 group-hover:text-cyan-100 tracking-[0.5px] transition-colors">
                 READ_MORE
-                <ExternalLinkIcon className="w-3 h-3" />
-              </a>
+                <ArrowRightIcon className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+              </span>
+              <Image
+                src={'/roadmap-project-news/bracket.svg'}
+                alt="News Card Background"
+                width={14}
+                height={14}
+                className={cn(
+                  'absolute top-[33px] left-full rotate-180',
+                  styles.corner,
+                )}
+              />
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
