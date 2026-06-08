@@ -91,11 +91,16 @@ export const ProfileCard = ({
   return (
     <div
       className={cn(
-        'relative p-[2px] bg-gradient-to-br from-[#CFFF04] via-[#FF2BD6] to-[#00F0FF] shadow-[0_0_14px_rgba(255,43,214,0.25)]',
+        'relative border-[3px] border-[#FFE600] bg-[#05060f] shadow-[0_0_14px_rgba(255,230,0,0.3)]',
         width,
       )}
     >
-      <div className="relative flex items-center gap-3 p-3 bg-[#05060f]">
+      {/* пиксельные глитч-акценты как на рамке фото */}
+      <span className="absolute -top-1 -left-1 w-2 h-2 bg-[#00F0FF]" />
+      <span className="absolute -top-1 right-3 w-1.5 h-1.5 bg-[#FF2BD6]" />
+      <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#FF2BD6]" />
+      <span className="absolute -bottom-1 left-3 w-1.5 h-1.5 bg-[#00F0FF]" />
+      <div className="relative flex items-center gap-3 p-3">
         <Link href="/profile" className="shrink-0">
           {user.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
