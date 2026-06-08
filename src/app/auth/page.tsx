@@ -15,8 +15,8 @@ import { loginSchema, registerSchema } from './schemas';
 type Tab = 'login' | 'register';
 
 const BOOT_LINES = [
-  '> INIT BREACH PROTOCOL ............ OK',
-  '> UPLINK ARASAKA::NETWATCH ........ OK',
+  '> INIT BREACH PROTOCOL ............OK',
+  '> UPLINK ARASAKA::NETWATCH ....... OK',
   '> SCANNING RELIC BIOCHIP ......... OK',
   '> VOIGHT-KAMPFF CALIBRATION ...... OK',
   '> NEXUS-6 REPLICANT SCAN ......... PASS',
@@ -100,6 +100,10 @@ export default function AuthPage() {
     : [];
   const errorLines: string[] = [];
   if (errors._form) errorLines.push(`> ERR..... ${errors._form.toUpperCase()}`);
+  for (const [k, v] of Object.entries(errors)) {
+    if (k !== '_form')
+      errorLines.push(`> ERR[${k.toUpperCase()}]..... ${v.toUpperCase()}`);
+  }
 
   // авто-скролл консоли вниз
   const consoleRef = useRef<HTMLDivElement>(null);
@@ -173,48 +177,34 @@ export default function AuthPage() {
   const renderEcho = (f: (typeof echoFields)[number]) => {
     const dots = `> ${f.label}..... `;
     const isActive = activeField === f.key;
-    const err = errors[f.key];
 
-    // активное поле — показываем ввод с кареткой
-    if (isActive) {
+    if (!isActive) {
+      // как сейчас: пароль скрыт, если пуст и не активен
       const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
-      const pos = Math.max(0, Math.min(caret, shown.length));
+      if (f.value === '') {
+        return (
+          <div key={f.key} className="text-cyan-200">
+            {dots}
+            <span className={cn(ui.blink, 'text-rose-400')}>REQUIRED</span>
+          </div>
+        );
+      }
       return (
         <div key={f.key} className="text-cyan-200">
           {dots}
-          {shown.slice(0, pos)}
-          <span className={ui.caret} />
-          {shown.slice(pos)}
+          {shown}
         </div>
       );
     }
 
-    // ошибка поля — вместо значения
-    if (err) {
-      return (
-        <div key={f.key} className="text-[#FF2BD6]">
-          {dots}
-          {err.toUpperCase()}
-        </div>
-      );
-    }
-
-    // пусто — REQUIRED
-    if (f.value === '') {
-      return (
-        <div key={f.key} className="text-cyan-200">
-          {dots}
-          <span className={cn(ui.blink, 'text-[#FF2BD6]')}>REQUIRED</span>
-        </div>
-      );
-    }
-
-    // обычное значение
     const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
+    const pos = Math.max(0, Math.min(caret, shown.length));
     return (
       <div key={f.key} className="text-cyan-200">
         {dots}
-        {shown}
+        {shown.slice(0, pos)}
+        <span className={ui.caret} />
+        {shown.slice(pos)}
       </div>
     );
   };
@@ -304,7 +294,7 @@ export default function AuthPage() {
             {echoFields.map(renderEcho)}
 
             {errorLines.map((line, i) => (
-              <div key={`x${i}`} className="text-[#FF2BD6]">
+              <div key={`x${i}`} className="text-rose-400">
                 {line}
               </div>
             ))}
@@ -374,7 +364,7 @@ export default function AuthPage() {
           </div>
 
           {errors._form && (
-            <div className="border border-[#FF2BD6] text-[#FF2BD6] text-sm font-tech p-2 flex items-center gap-2">
+            <div className="border border-rose-400 text-rose-400 text-sm font-tech p-2 flex items-center gap-2">
               <span className="animate-pulse">●</span> {errors._form}
             </div>
           )}
