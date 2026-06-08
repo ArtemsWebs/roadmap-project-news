@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useMe } from '@/app/profile/useMe';
 import { useStatsStore } from '@/app/profile/statsStore';
 import { logout } from '@/app/auth/api';
+import CyberFrame from './CyberFrame';
 
 const Metric = ({ label, value }: { label: string; value: number }) => (
   <div className="flex flex-col items-center px-2">
@@ -91,16 +92,13 @@ export const ProfileCard = ({
   return (
     <div
       className={cn(
-        'relative border-[3px] border-[#FFE600] bg-[#05060f] shadow-[0_0_14px_rgba(255,230,0,0.3)]',
+        'relative text-[#FFE600] drop-shadow-[0_0_10px_rgba(255,230,0,0.25)]',
         width,
       )}
     >
-      {/* пиксельные глитч-акценты как на рамке фото */}
-      <span className="absolute -top-1 -left-1 w-2 h-2 bg-[#00F0FF]" />
-      <span className="absolute -top-1 right-3 w-1.5 h-1.5 bg-[#FF2BD6]" />
-      <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#FF2BD6]" />
-      <span className="absolute -bottom-1 left-3 w-1.5 h-1.5 bg-[#00F0FF]" />
-      <div className="relative flex items-center gap-3 p-3">
+      <div className="absolute inset-[3px] bg-[#05060f]" />
+      <CyberFrame className="absolute inset-0 h-full w-full pointer-events-none" />
+      <div className="relative flex items-center gap-3 px-4 py-3">
         <Link href="/profile" className="shrink-0">
           {user.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
