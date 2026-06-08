@@ -43,6 +43,8 @@ export default function AuthPage() {
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [activeField, setActiveField] = useState<'username' | 'email' | 'password' | null>(null);
+  const [caret, setCaret] = useState(0);
 
   // стримящийся breach-лог
   const [visibleLines, setVisibleLines] = useState(0);
@@ -55,22 +57,33 @@ export default function AuthPage() {
   // ротация цитат
   const [quote, setQuote] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setQuote((q) => (q + 1) % QUOTES.length), 5000);
+    const id = setInterval(
+      () => setQuote((q) => (q + 1) % QUOTES.length),
+      5000,
+    );
     return () => clearInterval(id);
   }, []);
 
   // эхо ввода и ошибок в левую консоль
   const bootDone = visibleLines >= BOOT_LINES.length;
-  const echoLines: string[] = [];
-  if (bootDone) {
-    if (tab === 'register' && form.username) echoLines.push(`> handle:: ${form.username}`);
-    if (form.email) echoLines.push(`> addr:: ${form.email}`);
-    if (form.password) echoLines.push(`> key:: ${'•'.repeat(form.password.length)}`);
-  }
+  const echoFields: {
+    key: 'username' | 'email' | 'password';
+    label: string;
+    value: string;
+    masked: boolean;
+  }[] = bootDone
+    ? [
+        ...(tab === 'register'
+          ? [{ key: 'username' as const, label: 'Handle', value: form.username, masked: false }]
+          : []),
+        { key: 'email' as const, label: 'Address', value: form.email, masked: false },
+        { key: 'password' as const, label: 'Password', value: form.password, masked: true },
+      ]
+    : [];
   const errorLines: string[] = [];
-  if (errors._form) errorLines.push(`> ERR:: ${errors._form}`);
+  if (errors._form) errorLines.push(`> ERR..... ${errors._form}`);
   for (const [k, v] of Object.entries(errors)) {
-    if (k !== '_form') errorLines.push(`> ERR[${k}]:: ${v}`);
+    if (k !== '_form') errorLines.push(`> ERR[${k}]..... ${v}`);
   }
 
   // авто-скролл консоли вниз
@@ -78,12 +91,24 @@ export default function AuthPage() {
   useEffect(() => {
     const el = consoleRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [visibleLines, echoLines.length, errorLines.length, form.email, form.username, form.password]);
+  }, [
+    visibleLines,
+    echoFields.length,
+    errorLines.length,
+    form.email,
+    form.username,
+    form.password,
+    activeField,
+    caret,
+  ]);
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (tab === 'login') {
-        const parsed = loginSchema.safeParse({ email: form.email, password: form.password });
+        const parsed = loginSchema.safeParse({
+          email: form.email,
+          password: form.password,
+        });
         if (!parsed.success) throw { fields: fieldErrors(parsed.error) };
         return login(parsed.data);
       }
@@ -100,7 +125,9 @@ export default function AuthPage() {
       if (e && typeof e === 'object' && 'fields' in e) {
         setErrors((e as { fields: Record<string, string> }).fields);
       } else {
-        setErrors({ _form: e instanceof Error ? e.message : 'CONNECTION REFUSED' });
+        setErrors({
+          _form: e instanceof Error ? e.message : 'CONNECTION REFUSED',
+        });
       }
     },
   });
@@ -110,17 +137,83 @@ export default function AuthPage() {
     setAvatarPreview(file ? URL.createObjectURL(file) : null);
   };
 
+  // привязка инпута к консоли: фокус, позиция каретки, значение
+  const bind = (key: 'username' | 'email' | 'password') => ({
+    value: form[key],
+    error: errors[key],
+    onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+      setActiveField(key);
+      setCaret(e.target.selectionStart ?? e.target.value.length);
+    },
+    onBlur: () => setActiveField((p) => (p === key ? null : p)),
+    onSelect: (e: React.SyntheticEvent<HTMLInputElement>) =>
+      setCaret(e.currentTarget.selectionStart ?? 0),
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, [key]: e.target.value }));
+      setCaret(e.target.selectionStart ?? e.target.value.length);
+    },
+  });
+
+  // строка консоли для поля: курсор на каретке у активного, REQUIRED если активно и пусто
+  const renderEcho = (f: (typeof echoFields)[number]) => {
+    const dots = `> ${f.label}..... `;
+    const isActive = activeField === f.key;
+
+    if (!isActive) {
+      // как сейчас: пароль скрыт, если пуст и не активен
+      if (f.key === 'password' && f.value === '') return null;
+      const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
+      return (
+        <div key={f.key} className="text-cyan-200">
+          {dots}
+          {shown}
+        </div>
+      );
+    }
+
+    if (f.value === '') {
+      return (
+        <div key={f.key} className="text-cyan-200">
+          {dots}
+          <span className={cn(ui.blink, 'text-[#FF2BD6]')}>REQUIRED</span>
+        </div>
+      );
+    }
+
+    const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
+    const pos = Math.max(0, Math.min(caret, shown.length));
+    return (
+      <div key={f.key} className="text-cyan-200">
+        {dots}
+        {shown.slice(0, pos)}
+        <span className={cn(ui.blink, 'text-[#00F0FF]')}>█</span>
+        {shown.slice(pos)}
+      </div>
+    );
+  };
+
   return (
-    <div className={cn(styles['cp-root'], 'min-h-screen flex flex-col items-center justify-center p-4 gap-3')}>
+    <div
+      className={cn(
+        styles['cp-root'],
+        'min-h-screen flex flex-col items-center justify-center p-4 gap-3',
+      )}
+    >
       <MatrixRain />
       <div className={styles['cp-scanlines']} />
 
       {/* верхняя бегущая строка-предупреждение */}
       <div className="relative z-[2] w-full max-w-[980px] border border-[#FF2BD6]/40 bg-black/50">
         <div className={cn(ui.marqueeMask, 'py-1')}>
-          <span className={cn(ui.marquee, 'text-[11px] font-tech tracking-widest text-[#FF2BD6]/80 uppercase')}>
-            ⚠ NETWATCH ALERT · UNAUTHORIZED ACCESS WILL BE TRACED · ARASAKA SECURITY ONLINE · NIGHT CITY GRID 2077 ·
-            REPLICANTS MUST DECLARE NEXUS MODEL · OFF-WORLD VISA REQUIRED ·
+          <span
+            className={cn(
+              ui.marquee,
+              'text-[11px] font-tech tracking-widest text-[#FF2BD6]/80 uppercase',
+            )}
+          >
+            ⚠ NETWATCH ALERT · UNAUTHORIZED ACCESS WILL BE TRACED · ARASAKA
+            SECURITY ONLINE · NIGHT CITY GRID 2077 · REPLICANTS MUST DECLARE
+            NEXUS MODEL · OFF-WORLD VISA REQUIRED ·
           </span>
         </div>
       </div>
@@ -141,7 +234,9 @@ export default function AuthPage() {
                 Nexus-6 Identity Gateway
               </span>
             </div>
-            <span className="text-[10px] font-tech text-[#FF2BD6]/70">v7.3.1</span>
+            <span className="text-[10px] font-tech text-[#FF2BD6]/70">
+              v7.3.1
+            </span>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-orbitron font-black leading-none">
@@ -156,11 +251,16 @@ export default function AuthPage() {
 
           {/* статус-строка */}
           <div className="flex flex-wrap gap-2 text-[10px] font-tech uppercase tracking-wider">
-            {['Night City', 'Ping 23ms', 'ICE: Active', 'GRID 2077'].map((s) => (
-              <span key={s} className="border border-cyan-300/30 text-cyan-300/70 px-2 py-1">
-                {s}
-              </span>
-            ))}
+            {['Night City', 'Ping 23ms', 'ICE: Active', 'GRID 2077'].map(
+              (s) => (
+                <span
+                  key={s}
+                  className="border border-cyan-300/30 text-cyan-300/70 px-2 py-1"
+                >
+                  {s}
+                </span>
+              ),
+            )}
           </div>
 
           {/* breach-лог + эхо ввода + ошибки */}
@@ -174,11 +274,7 @@ export default function AuthPage() {
               </div>
             ))}
 
-            {echoLines.map((line, i) => (
-              <div key={`e${i}`} className="text-cyan-200">
-                {line}
-              </div>
-            ))}
+            {echoFields.map(renderEcho)}
 
             {errorLines.map((line, i) => (
               <div key={`x${i}`} className="text-[#FF2BD6]">
@@ -188,12 +284,12 @@ export default function AuthPage() {
 
             {visibleLines < BOOT_LINES.length ? (
               <span className={cn(ui.blink, 'text-[#7CFFB2]')}>█</span>
-            ) : (
+            ) : !activeField ? (
               <span className="text-cyan-300/60">
                 {'> '}
                 <span className={ui.blink}>_</span>
               </span>
-            )}
+            ) : null}
           </div>
 
           {/* корп-чипы */}
@@ -219,9 +315,13 @@ export default function AuthPage() {
         <div className={cn(ui.panel, 'flex flex-col gap-5')}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-tech tracking-widest text-cyan-300/80 uppercase">
-              {tab === 'login' ? '// Voight-Kampff · Sign In' : '// New Replicant · Register'}
+              {tab === 'login'
+                ? '// Voight-Kampff · Sign In'
+                : '// New Replicant · Register'}
             </span>
-            <span className="text-[10px] font-tech text-[#00F0FF]/60">SEC//LVL-7</span>
+            <span className="text-[10px] font-tech text-[#00F0FF]/60">
+              SEC//LVL-7
+            </span>
           </div>
 
           {/* табы */}
@@ -260,32 +360,23 @@ export default function AuthPage() {
             }}
           >
             {tab === 'register' && (
-              <CyberInput
-                id="username"
-                label="Handle // Username"
-                placeholder="V"
-                value={form.username}
-                error={errors.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-              />
+              <CyberInput id="username" label="Handle // Username" placeholder="V" {...bind('username')} />
             )}
             <CyberInput
               id="email"
               label="Net Address // Email"
-              type="email"
+              type="text"
+              inputMode="email"
+              autoComplete="email"
               placeholder="netrunner@nightcity.net"
-              value={form.email}
-              error={errors.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              {...bind('email')}
             />
             <CyberInput
               id="password"
               label="Access Key // Password"
               type="password"
               placeholder="••••••••"
-              value={form.password}
-              error={errors.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              {...bind('password')}
             />
 
             {tab === 'register' && (
@@ -328,8 +419,8 @@ export default function AuthPage() {
           </form>
 
           <p className="text-[10px] font-tech text-cyan-300/40 leading-relaxed">
-            By jacking in you accept the Arasaka EULA and waive all off-world liability. Replicants found
-            impersonating humans will be retired.
+            By jacking in you accept the Arasaka EULA and waive all off-world
+            liability. Replicants found impersonating humans will be retired.
           </p>
         </div>
       </div>
