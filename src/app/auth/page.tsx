@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from 'react-query';
 import { cn } from '@/lib/utils';
@@ -8,6 +8,7 @@ import styles from '../cyberpunk-style.module.css';
 import ui from './auth.module.css';
 import CyberInput from '@/components/ui/CyberInput';
 import CyberButton from '@/components/ui/CyberButton';
+import MatrixRain from './MatrixRain';
 import { login, register } from './api';
 import { loginSchema, registerSchema } from './schemas';
 
@@ -58,6 +59,27 @@ export default function AuthPage() {
     return () => clearInterval(id);
   }, []);
 
+  // эхо ввода и ошибок в левую консоль
+  const bootDone = visibleLines >= BOOT_LINES.length;
+  const echoLines: string[] = [];
+  if (bootDone) {
+    if (tab === 'register' && form.username) echoLines.push(`> handle:: ${form.username}`);
+    if (form.email) echoLines.push(`> addr:: ${form.email}`);
+    if (form.password) echoLines.push(`> key:: ${'•'.repeat(form.password.length)}`);
+  }
+  const errorLines: string[] = [];
+  if (errors._form) errorLines.push(`> ERR:: ${errors._form}`);
+  for (const [k, v] of Object.entries(errors)) {
+    if (k !== '_form') errorLines.push(`> ERR[${k}]:: ${v}`);
+  }
+
+  // авто-скролл консоли вниз
+  const consoleRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = consoleRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [visibleLines, echoLines.length, errorLines.length, form.email, form.username, form.password]);
+
   const mutation = useMutation({
     mutationFn: async () => {
       if (tab === 'login') {
@@ -90,6 +112,7 @@ export default function AuthPage() {
 
   return (
     <div className={cn(styles['cp-root'], 'min-h-screen flex flex-col items-center justify-center p-4 gap-3')}>
+      <MatrixRain />
       <div className={styles['cp-scanlines']} />
 
       {/* верхняя бегущая строка-предупреждение */}
@@ -140,13 +163,29 @@ export default function AuthPage() {
             ))}
           </div>
 
-          {/* breach-лог */}
-          <div className="border border-cyan-300/20 bg-black/60 p-3 font-tech text-[11px] leading-relaxed text-[#7CFFB2] min-h-[150px]">
+          {/* breach-лог + эхо ввода + ошибки */}
+          <div
+            ref={consoleRef}
+            className="border border-cyan-300/20 bg-black/60 p-3 font-tech text-[11px] leading-relaxed flex-1 min-h-[150px] overflow-y-auto"
+          >
             {BOOT_LINES.slice(0, visibleLines).map((line, i) => (
-              <div key={i} className={ui.logline}>
+              <div key={`b${i}`} className={cn(ui.logline, 'text-[#7CFFB2]')}>
                 {line}
               </div>
             ))}
+
+            {echoLines.map((line, i) => (
+              <div key={`e${i}`} className="text-cyan-200">
+                {line}
+              </div>
+            ))}
+
+            {errorLines.map((line, i) => (
+              <div key={`x${i}`} className="text-[#FF2BD6]">
+                {line}
+              </div>
+            ))}
+
             {visibleLines < BOOT_LINES.length ? (
               <span className={cn(ui.blink, 'text-[#7CFFB2]')}>█</span>
             ) : (
