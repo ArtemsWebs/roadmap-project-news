@@ -6,15 +6,28 @@ import { uploadAvatar, getAvatarUrl } from '../lib/storage';
 import { SESSION_COOKIE, sessionCookieOptions } from '../lib/session';
 import { registerBody, loginBody } from '../schemas/auth';
 
-type PublicUser = { id: string; email: string; username: string; avatarUrl: string | null };
+type PublicUser = {
+  id: string;
+  email: string;
+  username: string;
+  avatarUrl: string | null;
+  createdAt: string;
+};
 
 function toPublicUser(u: {
   id: string;
   email: string;
   username: string;
   avatarKey: string | null;
+  createdAt: Date;
 }): PublicUser {
-  return { id: u.id, email: u.email, username: u.username, avatarUrl: getAvatarUrl(u.avatarKey) };
+  return {
+    id: u.id,
+    email: u.email,
+    username: u.username,
+    avatarUrl: getAvatarUrl(u.avatarKey),
+    createdAt: u.createdAt.toISOString(),
+  };
 }
 
 export const authRoutes = new Elysia({ prefix: '/auth' })
@@ -74,13 +87,14 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     return { ok: true };
   })
   .get('/me', async ({ jwt, cookie, set }) => {
-    const token = cookie[SESSION_COOKIE].value;
+    const token = cookie[SESSION_COOKIE].value as string | undefined;
     const payload = token ? await jwt.verify(token) : false;
-    if (!payload || typeof payload.sub !== 'string') {
+    const sub = payload && typeof payload.sub === 'string' ? payload.sub : null;
+    if (!sub) {
       set.status = 401;
       return { error: 'Не авторизован' };
     }
-    const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await prisma.user.findUnique({ where: { id: sub } });
     if (!user) {
       set.status = 401;
       return { error: 'Не авторизован' };

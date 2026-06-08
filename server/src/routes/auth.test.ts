@@ -29,6 +29,8 @@ describe('auth routes', () => {
     const data = await res.json();
     expect(data.user.email).toBe('a@a.com');
     expect(data.user.username).toBe('neo');
+    expect(typeof data.user.createdAt).toBe('string');
+    expect(Number.isNaN(Date.parse(data.user.createdAt))).toBe(false);
     expect(res.headers.get('set-cookie')).toContain('session=');
   });
 
