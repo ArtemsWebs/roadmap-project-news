@@ -100,10 +100,6 @@ export default function AuthPage() {
     : [];
   const errorLines: string[] = [];
   if (errors._form) errorLines.push(`> ERR..... ${errors._form.toUpperCase()}`);
-  for (const [k, v] of Object.entries(errors)) {
-    if (k !== '_form')
-      errorLines.push(`> ERR[${k.toUpperCase()}]..... ${v.toUpperCase()}`);
-  }
 
   // авто-скролл консоли вниз
   const consoleRef = useRef<HTMLDivElement>(null);
@@ -178,33 +174,47 @@ export default function AuthPage() {
     const dots = `> ${f.label}..... `;
     const isActive = activeField === f.key;
 
-    if (!isActive) {
-      // как сейчас: пароль скрыт, если пуст и не активен
+    const err = errors[f.key];
+
+    // активное поле — ввод с кареткой
+    if (isActive) {
       const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
-      if (f.value === '') {
-        return (
-          <div key={f.key} className="text-cyan-200">
-            {dots}
-            <span className={cn(ui.blink, 'text-rose-400')}>REQUIRED</span>
-          </div>
-        );
-      }
+      const pos = Math.max(0, Math.min(caret, shown.length));
       return (
         <div key={f.key} className="text-cyan-200">
           {dots}
-          {shown}
+          {shown.slice(0, pos)}
+          <span className={ui.caret} />
+          {shown.slice(pos)}
         </div>
       );
     }
 
+    // ошибка поля — в его же строке, формат прежний: ERR[FIELD]..... MESSAGE
+    if (err) {
+      return (
+        <div key={f.key} className="text-rose-400">
+          {`> ERR[${f.key.toUpperCase()}]..... ${err.toUpperCase()}`}
+        </div>
+      );
+    }
+
+    // пусто — REQUIRED
+    if (f.value === '') {
+      return (
+        <div key={f.key} className="text-cyan-200">
+          {dots}
+          <span className={cn(ui.blink, 'text-rose-400')}>REQUIRED</span>
+        </div>
+      );
+    }
+
+    // обычное значение
     const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
-    const pos = Math.max(0, Math.min(caret, shown.length));
     return (
       <div key={f.key} className="text-cyan-200">
         {dots}
-        {shown.slice(0, pos)}
-        <span className={ui.caret} />
-        {shown.slice(pos)}
+        {shown}
       </div>
     );
   };
