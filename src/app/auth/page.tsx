@@ -1,16 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from 'react-query';
 import { cn } from '@/lib/utils';
 import styles from '../cyberpunk-style.module.css';
+import ui from './auth.module.css';
 import CyberInput from '@/components/ui/CyberInput';
 import CyberButton from '@/components/ui/CyberButton';
 import { login, register } from './api';
 import { loginSchema, registerSchema } from './schemas';
 
 type Tab = 'login' | 'register';
+
+const BOOT_LINES = [
+  '> INIT BREACH PROTOCOL ............ OK',
+  '> UPLINK ARASAKA::NETWATCH ........ OK',
+  '> SCANNING RELIC BIOCHIP ......... OK',
+  '> VOIGHT-KAMPFF CALIBRATION ...... OK',
+  '> NEXUS-6 REPLICANT SCAN ......... PASS',
+  '> ICE LAYER 07 BYPASS ............ OK',
+  '> TRACE: NIGHT CITY / WATSON ..... LOCKED',
+  '> READY. JACK IN, CHOOM.',
+];
+
+const QUOTES = [
+  'All those moments will be lost in time, like tears in rain.',
+  'Wake up, samurai. We have a city to burn.',
+  'More human than human is our motto.',
+  'I have seen things you people would not believe.',
+  'Never fade away.',
+];
+
+const CORPS = ['ARASAKA', 'TYRELL CORP', 'MILITECH'];
 
 export default function AuthPage() {
   const router = useRouter();
@@ -21,19 +43,30 @@ export default function AuthPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // стримящийся breach-лог
+  const [visibleLines, setVisibleLines] = useState(0);
+  useEffect(() => {
+    if (visibleLines >= BOOT_LINES.length) return;
+    const id = setTimeout(() => setVisibleLines((n) => n + 1), 420);
+    return () => clearTimeout(id);
+  }, [visibleLines]);
+
+  // ротация цитат
+  const [quote, setQuote] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setQuote((q) => (q + 1) % QUOTES.length), 5000);
+    return () => clearInterval(id);
+  }, []);
+
   const mutation = useMutation({
     mutationFn: async () => {
       if (tab === 'login') {
         const parsed = loginSchema.safeParse({ email: form.email, password: form.password });
-        if (!parsed.success) {
-          throw { fields: fieldErrors(parsed.error) };
-        }
+        if (!parsed.success) throw { fields: fieldErrors(parsed.error) };
         return login(parsed.data);
       }
       const parsed = registerSchema.safeParse(form);
-      if (!parsed.success) {
-        throw { fields: fieldErrors(parsed.error) };
-      }
+      if (!parsed.success) throw { fields: fieldErrors(parsed.error) };
       return register(parsed.data, avatar);
     },
     onSuccess: async () => {
@@ -45,7 +78,7 @@ export default function AuthPage() {
       if (e && typeof e === 'object' && 'fields' in e) {
         setErrors((e as { fields: Record<string, string> }).fields);
       } else {
-        setErrors({ _form: e instanceof Error ? e.message : 'Ошибка' });
+        setErrors({ _form: e instanceof Error ? e.message : 'CONNECTION REFUSED' });
       }
     },
   });
@@ -56,25 +89,108 @@ export default function AuthPage() {
   };
 
   return (
-    <div className={cn(styles['cp-root'], 'min-h-screen flex items-center justify-center p-4')}>
+    <div className={cn(styles['cp-root'], 'min-h-screen flex flex-col items-center justify-center p-4 gap-3')}>
       <div className={styles['cp-scanlines']} />
-      <div className="relative w-full max-w-md">
-        {/* неон-рамка */}
-        <span className="absolute inset-0 border border-[#00F0FF]" />
-        <span className="absolute bottom-[-4px] right-[-4px] w-full h-full border border-[#7C3AED]" />
-        <div className="relative bg-[#020617]/80 p-8 flex flex-col gap-6">
-          <h1
-            className="text-2xl font-orbitron font-black text-[#00F0FF] tracking-widest"
-            style={{ textShadow: '2px 0 0 #fff, 4px 0 0 #FF2BD6' }}
-          >
-            ACCESS://AUTH
+
+      {/* верхняя бегущая строка-предупреждение */}
+      <div className="relative z-[2] w-full max-w-[980px] border border-[#FF2BD6]/40 bg-black/50">
+        <div className={cn(ui.marqueeMask, 'py-1')}>
+          <span className={cn(ui.marquee, 'text-[11px] font-tech tracking-widest text-[#FF2BD6]/80 uppercase')}>
+            ⚠ NETWATCH ALERT · UNAUTHORIZED ACCESS WILL BE TRACED · ARASAKA SECURITY ONLINE · NIGHT CITY GRID 2077 ·
+            REPLICANTS MUST DECLARE NEXUS MODEL · OFF-WORLD VISA REQUIRED ·
+          </span>
+        </div>
+      </div>
+
+      <div className={cn(ui.wrap, ui.flicker)}>
+        <span className={cn(ui.bracket, ui.btl)} />
+        <span className={cn(ui.bracket, ui.btr)} />
+        <span className={cn(ui.bracket, ui.bbl)} />
+        <span className={cn(ui.bracket, ui.bbr)} />
+        <span className={ui.scanbeam} />
+
+        {/* ===== ЛЕВАЯ ПАНЕЛЬ — INTEL / HUD ===== */}
+        <div className={cn(ui.panel, 'flex flex-col gap-5')}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-[#00F0FF] animate-pulse" />
+              <span className="text-xs font-tech tracking-widest text-cyan-300/80 uppercase">
+                Nexus-6 Identity Gateway
+              </span>
+            </div>
+            <span className="text-[10px] font-tech text-[#FF2BD6]/70">v7.3.1</span>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-orbitron font-black leading-none">
+            <span className={ui.glitch} data-text="ACCESS://AUTH">
+              ACCESS://AUTH
+            </span>
           </h1>
+
+          <p className="text-xs font-tech tracking-[0.25em] text-[#FF2BD6] uppercase">
+            ▰ More human than human ▰
+          </p>
+
+          {/* статус-строка */}
+          <div className="flex flex-wrap gap-2 text-[10px] font-tech uppercase tracking-wider">
+            {['Night City', 'Ping 23ms', 'ICE: Active', 'GRID 2077'].map((s) => (
+              <span key={s} className="border border-cyan-300/30 text-cyan-300/70 px-2 py-1">
+                {s}
+              </span>
+            ))}
+          </div>
+
+          {/* breach-лог */}
+          <div className="border border-cyan-300/20 bg-black/60 p-3 font-tech text-[11px] leading-relaxed text-[#7CFFB2] min-h-[150px]">
+            {BOOT_LINES.slice(0, visibleLines).map((line, i) => (
+              <div key={i} className={ui.logline}>
+                {line}
+              </div>
+            ))}
+            {visibleLines < BOOT_LINES.length ? (
+              <span className={cn(ui.blink, 'text-[#7CFFB2]')}>█</span>
+            ) : (
+              <span className="text-cyan-300/60">
+                {'> '}
+                <span className={ui.blink}>_</span>
+              </span>
+            )}
+          </div>
+
+          {/* корп-чипы */}
+          <div className="flex flex-wrap gap-2">
+            {CORPS.map((c) => (
+              <span
+                key={c}
+                className="text-[10px] font-orbitron tracking-widest uppercase px-2 py-1 border border-[#7C3AED]/50 text-[#b794f6]"
+              >
+                {c}
+              </span>
+            ))}
+          </div>
+
+          {/* ротация цитат */}
+          <p className="mt-auto text-[11px] font-tech italic text-cyan-300/50 border-l-2 border-[#00F0FF]/50 pl-3 min-h-[34px]">
+            {'// '}
+            {QUOTES[quote]}
+          </p>
+        </div>
+
+        {/* ===== ПРАВАЯ ПАНЕЛЬ — ФОРМА ===== */}
+        <div className={cn(ui.panel, 'flex flex-col gap-5')}>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-tech tracking-widest text-cyan-300/80 uppercase">
+              {tab === 'login' ? '// Voight-Kampff · Sign In' : '// New Replicant · Register'}
+            </span>
+            <span className="text-[10px] font-tech text-[#00F0FF]/60">SEC//LVL-7</span>
+          </div>
 
           {/* табы */}
           <div className="flex gap-2">
             {(['login', 'register'] as Tab[]).map((t) => (
               <button
                 key={t}
+                type="button"
                 onClick={() => {
                   setTab(t);
                   setErrors({});
@@ -92,7 +208,9 @@ export default function AuthPage() {
           </div>
 
           {errors._form && (
-            <div className="border border-[#FF2BD6] text-[#FF2BD6] text-sm font-tech p-2">{errors._form}</div>
+            <div className="border border-[#FF2BD6] text-[#FF2BD6] text-sm font-tech p-2 flex items-center gap-2">
+              <span className="animate-pulse">●</span> {errors._form}
+            </div>
           )}
 
           <form
@@ -105,8 +223,8 @@ export default function AuthPage() {
             {tab === 'register' && (
               <CyberInput
                 id="username"
-                label="Username"
-                placeholder="neo"
+                label="Handle // Username"
+                placeholder="V"
                 value={form.username}
                 error={errors.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -114,16 +232,16 @@ export default function AuthPage() {
             )}
             <CyberInput
               id="email"
-              label="Email"
+              label="Net Address // Email"
               type="email"
-              placeholder="user@neon.news"
+              placeholder="netrunner@nightcity.net"
               value={form.email}
               error={errors.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
             <CyberInput
               id="password"
-              label="Password"
+              label="Access Key // Password"
               type="password"
               placeholder="••••••••"
               value={form.password}
@@ -133,12 +251,22 @@ export default function AuthPage() {
 
             {tab === 'register' && (
               <div className="flex items-center gap-3">
-                {avatarPreview && (
+                {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarPreview} alt="avatar" className="w-12 h-12 object-cover border border-[#00F0FF]" />
+                  <img
+                    src={avatarPreview}
+                    alt="avatar"
+                    className="w-14 h-14 object-cover border border-[#00F0FF] shadow-[0_0_10px_#00F0FF66]"
+                  />
+                ) : (
+                  <div className="w-14 h-14 border border-cyan-300/30 flex items-center justify-center text-[9px] font-tech text-cyan-300/40 text-center leading-tight">
+                    NO
+                    <br />
+                    SIGNAL
+                  </div>
                 )}
-                <label className="text-xs font-tech uppercase tracking-widest text-cyan-300/80 cursor-pointer border border-cyan-300/40 px-3 py-2 hover:border-cyan-300">
-                  Upload avatar
+                <label className="text-xs font-tech uppercase tracking-widest text-cyan-300/80 cursor-pointer border border-cyan-300/40 px-3 py-2 hover:border-cyan-300 hover:shadow-[0_0_8px_#00F0FF44] transition-all">
+                  Upload ID Photo
                   <input
                     type="file"
                     accept="image/*"
@@ -151,12 +279,25 @@ export default function AuthPage() {
 
             <CyberButton>
               <span className="text-sm font-tech">
-                {mutation.isLoading ? 'Loading…' : tab === 'login' ? 'Sign in' : 'Create account'}
+                {mutation.isLoading
+                  ? 'BREACHING…'
+                  : tab === 'login'
+                    ? '▶ JACK IN'
+                    : '▶ INITIALIZE'}
               </span>
             </CyberButton>
           </form>
+
+          <p className="text-[10px] font-tech text-cyan-300/40 leading-relaxed">
+            By jacking in you accept the Arasaka EULA and waive all off-world liability. Replicants found
+            impersonating humans will be retired.
+          </p>
         </div>
       </div>
+
+      <p className="relative z-[2] text-[10px] font-tech text-gray-600 tracking-widest">
+        NEON://NEWS · DECENTRALIZED NEWS PROTOCOL · NIGHT CITY DATA HAVEN
+      </p>
     </div>
   );
 }
