@@ -38,7 +38,8 @@ export const ProfileCard = ({
     router.push('/');
   };
 
-  const width = variant === 'sidebar' ? 'w-full' : 'w-full sm:w-[300px]';
+  const width =
+    variant === 'sidebar' ? 'w-full' : 'w-[300px] max-w-[70vw]';
 
   if (isLoading) {
     return (
@@ -88,9 +89,13 @@ export const ProfileCard = ({
 
   // Авторизован
   return (
-    <div className={cn('relative border border-cyan-300/40 bg-black/50', width)}>
-      <span className="absolute bottom-[-3px] right-[-3px] w-full h-full border border-[#7C3AED]/60 pointer-events-none" />
-      <div className="relative flex items-center gap-3 p-3">
+    <div
+      className={cn(
+        'relative p-[2px] bg-gradient-to-br from-[#CFFF04] via-[#FF2BD6] to-[#00F0FF] shadow-[0_0_14px_rgba(255,43,214,0.25)]',
+        width,
+      )}
+    >
+      <div className="relative flex items-center gap-3 p-3 bg-[#05060f]">
         <Link href="/profile" className="shrink-0">
           {user.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
