@@ -2,7 +2,13 @@ import type { LoginInput, RegisterInput } from './schemas';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-export type AuthUser = { id: string; email: string; username: string; avatarUrl: string | null };
+export type AuthUser = {
+  id: string;
+  email: string;
+  username: string;
+  avatarUrl: string | null;
+  createdAt: string;
+};
 
 async function parse(res: Response): Promise<{ user: AuthUser }> {
   const data = await res.json().catch(() => ({}));
