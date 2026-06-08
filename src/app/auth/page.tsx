@@ -22,7 +22,6 @@ const BOOT_LINES = [
   '> NEXUS-6 REPLICANT SCAN ......... PASS',
   '> ICE LAYER 07 BYPASS ............ OK',
   '> TRACE: NIGHT CITY / WATSON ..... LOCKED',
-  '> READY. JACK IN, CHOOM.',
 ];
 
 const QUOTES = [
@@ -43,7 +42,9 @@ export default function AuthPage() {
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [activeField, setActiveField] = useState<'username' | 'email' | 'password' | null>(null);
+  const [activeField, setActiveField] = useState<
+    'username' | 'email' | 'password' | null
+  >(null);
   const [caret, setCaret] = useState(0);
 
   // стримящийся breach-лог
@@ -74,16 +75,34 @@ export default function AuthPage() {
   }[] = bootDone
     ? [
         ...(tab === 'register'
-          ? [{ key: 'username' as const, label: 'Handle', value: form.username, masked: false }]
+          ? [
+              {
+                key: 'username' as const,
+                label: 'Username',
+                value: form.username,
+                masked: false,
+              },
+            ]
           : []),
-        { key: 'email' as const, label: 'Address', value: form.email, masked: false },
-        { key: 'password' as const, label: 'Password', value: form.password, masked: true },
+        {
+          key: 'email' as const,
+          label: 'Email',
+          value: form.email,
+          masked: false,
+        },
+        {
+          key: 'password' as const,
+          label: 'Password',
+          value: form.password,
+          masked: true,
+        },
       ]
     : [];
   const errorLines: string[] = [];
-  if (errors._form) errorLines.push(`> ERR..... ${errors._form}`);
+  if (errors._form) errorLines.push(`> ERR..... ${errors._form.toUpperCase()}`);
   for (const [k, v] of Object.entries(errors)) {
-    if (k !== '_form') errorLines.push(`> ERR[${k}]..... ${v}`);
+    if (k !== '_form')
+      errorLines.push(`> ERR[${k.toUpperCase()}]..... ${v.toUpperCase()}`);
   }
 
   // авто-скролл консоли вниз
@@ -161,21 +180,19 @@ export default function AuthPage() {
 
     if (!isActive) {
       // как сейчас: пароль скрыт, если пуст и не активен
-      if (f.key === 'password' && f.value === '') return null;
       const shown = f.masked ? '•'.repeat(f.value.length) : f.value;
+      if (f.value === '') {
+        return (
+          <div key={f.key} className="text-cyan-200">
+            {dots}
+            <span className={cn(ui.blink, 'text-[#FF2BD6]')}>REQUIRED</span>
+          </div>
+        );
+      }
       return (
         <div key={f.key} className="text-cyan-200">
           {dots}
           {shown}
-        </div>
-      );
-    }
-
-    if (f.value === '') {
-      return (
-        <div key={f.key} className="text-cyan-200">
-          {dots}
-          <span className={cn(ui.blink, 'text-[#FF2BD6]')}>REQUIRED</span>
         </div>
       );
     }
@@ -186,7 +203,7 @@ export default function AuthPage() {
       <div key={f.key} className="text-cyan-200">
         {dots}
         {shown.slice(0, pos)}
-        <span className={cn(ui.blink, 'text-[#00F0FF]')}>█</span>
+        <span className={ui.caret} />
         {shown.slice(pos)}
       </div>
     );
@@ -360,7 +377,12 @@ export default function AuthPage() {
             }}
           >
             {tab === 'register' && (
-              <CyberInput id="username" label="Handle // Username" placeholder="V" {...bind('username')} />
+              <CyberInput
+                id="username"
+                label="Handle // Username"
+                placeholder="V"
+                {...bind('username')}
+              />
             )}
             <CyberInput
               id="email"
